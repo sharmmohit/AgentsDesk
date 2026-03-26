@@ -4,17 +4,20 @@ import AuthModal from './AuthModal';
 const Navbar = () => {
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [authMode, setAuthMode] = useState('login');
+  const [menuOpen, setMenuOpen] = useState(false); // ✅ mobile menu
 
   const scrollToSection = (id) => {
     const element = document.getElementById(id);
     if (element) {
       element.scrollIntoView({ behavior: 'smooth' });
+      setMenuOpen(false); // close menu on click
     }
   };
 
   const openAuthModal = (mode) => {
     setAuthMode(mode);
     setIsAuthOpen(true);
+    setMenuOpen(false);
   };
 
   return (
@@ -28,13 +31,15 @@ const Navbar = () => {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        padding: '0 40px',
+        padding: '0 20px',
         height: '68px',
         background: 'rgba(2,2,5,.88)',
         backdropFilter: 'blur(20px)',
         borderBottom: '1px solid rgba(255,255,255,.04)'
       }}>
-        <a href="#" className="nav-logo" style={{
+
+        {/* LOGO */}
+        <a href="#" style={{
           display: 'flex',
           alignItems: 'center',
           gap: '10px',
@@ -48,121 +53,193 @@ const Navbar = () => {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            fontFamily: 'JetBrains Mono',
+            fontFamily: 'Inter, sans-serif',
             fontSize: '11px',
             fontWeight: 700,
             color: '#020205'
-          }}>AD</div>
-          <span style={{ fontSize: '18px', fontWeight: 700, color: '#fff' }}>
-            Agents<span style={{ color: '#fff' }}>Desk</span>
+          }}>
+            AD
+          </div>
+
+          {/* 🔥 Premium Logo Font */}
+          <span style={{
+            fontFamily: 'Playfair Display, serif',
+            fontSize: '22px',
+            fontWeight: 600,
+            letterSpacing: '-0.02em',
+            color: '#fff'
+          }}>
+            AgentsDesk
           </span>
         </a>
 
-        <div className="nav-links" style={{ display: 'flex', gap: '32px' }}>
-          <button onClick={() => scrollToSection('agents')} style={{
-            fontSize: '13px',
-            color: '#9ca3af',
-            textDecoration: 'none',
-            background: 'none',
-            border: 'none',
-            cursor: 'pointer',
-            transition: 'color 0.2s'
-          }}
-          onMouseEnter={(e) => e.target.style.color = '#fff'}
-          onMouseLeave={(e) => e.target.style.color = '#9ca3af'}>
-            Agents
-          </button>
-          <button onClick={() => scrollToSection('how')} style={{
-            fontSize: '13px',
-            color: '#9ca3af',
-            textDecoration: 'none',
-            background: 'none',
-            border: 'none',
-            cursor: 'pointer',
-            transition: 'color 0.2s'
-          }}
-          onMouseEnter={(e) => e.target.style.color = '#fff'}
-          onMouseLeave={(e) => e.target.style.color = '#9ca3af'}>
-            How it works
-          </button>
-          <button onClick={() => scrollToSection('pricing')} style={{
-            fontSize: '13px',
-            color: '#9ca3af',
-            textDecoration: 'none',
-            background: 'none',
-            border: 'none',
-            cursor: 'pointer',
-            transition: 'color 0.2s'
-          }}
-          onMouseEnter={(e) => e.target.style.color = '#fff'}
-          onMouseLeave={(e) => e.target.style.color = '#9ca3af'}>
-            Pricing
-          </button>
-          <button onClick={() => scrollToSection('usecases')} style={{
-            fontSize: '13px',
-            color: '#9ca3af',
-            textDecoration: 'none',
-            background: 'none',
-            border: 'none',
-            cursor: 'pointer',
-            transition: 'color 0.2s'
-          }}
-          onMouseEnter={(e) => e.target.style.color = '#fff'}
-          onMouseLeave={(e) => e.target.style.color = '#9ca3af'}>
-            Use Cases
-          </button>
+        {/* DESKTOP LINKS */}
+        <div className="nav-links" style={{
+          display: 'flex',
+          gap: '28px'
+        }}>
+
+          {['agents', 'how', 'pricing', 'usecases'].map((item) => (
+            <button
+              key={item}
+              onClick={() => scrollToSection(item)}
+              style={{
+                fontFamily: 'Inter, sans-serif',
+                fontSize: '13px',
+                color: '#9ca3af',
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer'
+              }}
+              onMouseEnter={(e) => e.target.style.color = '#fff'}
+              onMouseLeave={(e) => e.target.style.color = '#9ca3af'}
+            >
+              {item === 'how'
+                ? 'How it works'
+                : item === 'usecases'
+                ? 'Use Cases'
+                : item.charAt(0).toUpperCase() + item.slice(1)}
+            </button>
+          ))}
         </div>
 
-        <div className="nav-cta" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <button 
+        {/* RIGHT CTA (DESKTOP) */}
+        <div className="nav-cta" style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '12px'
+        }}>
+          <button
             onClick={() => openAuthModal('login')}
-            className="btn-ghost"
             style={{
+              fontFamily: 'Inter, sans-serif',
               fontSize: '13px',
               color: '#9ca3af',
               background: 'none',
               border: 'none',
-              cursor: 'pointer',
-              padding: '8px 16px',
-              transition: 'color 0.2s'
+              cursor: 'pointer'
             }}
             onMouseEnter={(e) => e.target.style.color = '#fff'}
-            onMouseLeave={(e) => e.target.style.color = '#9ca3af'}>
+            onMouseLeave={(e) => e.target.style.color = '#9ca3af'}
+          >
             Sign in
           </button>
-          <button 
+
+          <button
             onClick={() => openAuthModal('signup')}
-            className="btn-primary"
             style={{
+              fontFamily: 'Inter, sans-serif',
               fontSize: '13px',
               fontWeight: 600,
-              fontFamily: 'Syne',
               color: '#020205',
               background: '#fff',
               border: 'none',
-              padding: '10px 20px',
+              padding: '10px 18px',
               borderRadius: '10px',
-              cursor: 'pointer',
-              transition: 'all 0.3s'
+              cursor: 'pointer'
             }}
-            onMouseEnter={(e) => {
-              e.target.style.boxShadow = '0 0 28px rgba(255,255,255,0.6)';
-              e.target.style.transform = 'translateY(-1px)';
-            }}
-            onMouseLeave={(e) => {
-              e.target.style.boxShadow = 'none';
-              e.target.style.transform = 'translateY(0)';
-            }}>
-            Get Started Free
+          >
+            Get Started
           </button>
+        </div>
+
+        {/* MOBILE MENU BUTTON */}
+        <div
+          onClick={() => setMenuOpen(!menuOpen)}
+          style={{
+            display: 'none',
+            flexDirection: 'column',
+            gap: '4px',
+            cursor: 'pointer'
+          }}
+          className="hamburger"
+        >
+          <span style={{ width: '20px', height: '2px', background: '#fff' }}></span>
+          <span style={{ width: '20px', height: '2px', background: '#fff' }}></span>
+          <span style={{ width: '20px', height: '2px', background: '#fff' }}></span>
         </div>
       </nav>
 
-      <AuthModal 
+      {/* ✅ MOBILE MENU */}
+      {menuOpen && (
+        <div style={{
+          position: 'fixed',
+          top: '68px',
+          left: 0,
+          right: 0,
+          background: '#020205',
+          padding: '20px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '16px',
+          zIndex: 400
+        }}>
+          {['agents', 'how', 'pricing', 'usecases'].map((item) => (
+            <button
+              key={item}
+              onClick={() => scrollToSection(item)}
+              style={{
+                fontFamily: 'Inter, sans-serif',
+                fontSize: '14px',
+                color: '#fff',
+                background: 'none',
+                border: 'none',
+                textAlign: 'left'
+              }}
+            >
+              {item === 'how'
+                ? 'How it works'
+                : item === 'usecases'
+                ? 'Use Cases'
+                : item.charAt(0).toUpperCase() + item.slice(1)}
+            </button>
+          ))}
+
+          <hr style={{ borderColor: 'rgba(255,255,255,.1)' }} />
+
+          <button onClick={() => openAuthModal('login')} style={{
+            fontFamily: 'Inter, sans-serif',
+            background: 'none',
+            border: 'none',
+            color: '#9ca3af',
+            textAlign: 'left'
+          }}>
+            Sign in
+          </button>
+
+          <button onClick={() => openAuthModal('signup')} style={{
+            fontFamily: 'Inter, sans-serif',
+            padding: '10px',
+            borderRadius: '10px',
+            background: '#fff',
+            border: 'none',
+            color: '#000'
+          }}>
+            Get Started
+          </button>
+        </div>
+      )}
+
+      {/* AUTH MODAL */}
+      <AuthModal
         isOpen={isAuthOpen}
         onClose={() => setIsAuthOpen(false)}
         initialMode={authMode}
       />
+
+      {/* ✅ RESPONSIVE CSS */}
+      <style>
+        {`
+        @media (max-width: 768px) {
+          .nav-links, .nav-cta {
+            display: none !important;
+          }
+          .hamburger {
+            display: flex !important;
+          }
+        }
+        `}
+      </style>
     </>
   );
 };

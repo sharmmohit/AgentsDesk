@@ -12,12 +12,13 @@ const AgentsSection = () => {
     <section
       id="agents"
       style={{
-        padding: '60px 0', // ✅ reduced from 100px
-        background: '#ffffff' // ✅ white smooth background
+        padding: '60px 0',
+        background: '#ffffff'
       }}
     >
       <div className="inner">
-        {/* Header */}
+
+        {/* HEADER */}
         <div
           style={{
             display: 'flex',
@@ -29,14 +30,24 @@ const AgentsSection = () => {
         >
           <div>
             <div className="section-label">
-              <span style={{ color: '#111827' }}>Marketplace</span>
+              <span style={{
+                color: '#111827',
+                fontFamily: 'Inter, sans-serif',
+                fontSize: '12px'
+              }}>
+                Marketplace
+              </span>
             </div>
 
+            {/* 🔥 Premium Heading */}
             <h2
               style={{
-                fontSize: 'clamp(1.8rem, 3vw, 2.5rem)',
-                fontWeight: 700,
-                color: '#111827'
+                fontFamily: 'Playfair Display, serif',
+                fontSize: 'clamp(1.9rem, 3vw, 2.6rem)',
+                fontWeight: 600,
+                color: '#111827',
+                lineHeight: '1.2',
+                letterSpacing: '-0.02em'
               }}
             >
               Browse AI <br />
@@ -54,6 +65,7 @@ const AgentsSection = () => {
 
           <p
             style={{
+              fontFamily: 'Inter, sans-serif',
               fontSize: '13px',
               color: '#6b7280',
               maxWidth: '260px',
@@ -65,7 +77,7 @@ const AgentsSection = () => {
           </p>
         </div>
 
-        {/* Filters */}
+        {/* FILTERS */}
         <div
           style={{
             display: 'flex',
@@ -82,7 +94,7 @@ const AgentsSection = () => {
                 padding: '6px 14px',
                 borderRadius: '100px',
                 fontSize: '11px',
-                fontFamily: 'JetBrains Mono',
+                fontFamily: 'Inter, sans-serif', // ✅ updated
                 border: '1px solid #e5e7eb',
                 color: activeCat === cat ? '#fff' : '#111827',
                 background: activeCat === cat ? '#111827' : '#fff',
@@ -95,11 +107,11 @@ const AgentsSection = () => {
           ))}
         </div>
 
-        {/* Grid */}
+        {/* GRID */}
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', // ✅ responsive
+            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
             gap: '18px'
           }}
         >
@@ -107,7 +119,7 @@ const AgentsSection = () => {
             <div
               key={agent.id}
               style={{
-                background: '#0a0a0f', // ✅ black premium card
+                background: '#0a0a0f',
                 borderRadius: '16px',
                 padding: '20px',
                 border: '1px solid rgba(0,0,0,0.08)',
@@ -123,7 +135,7 @@ const AgentsSection = () => {
                 e.currentTarget.style.boxShadow = 'none';
               }}
             >
-              {/* Top */}
+              {/* TOP */}
               <div
                 style={{
                   display: 'flex',
@@ -146,14 +158,19 @@ const AgentsSection = () => {
                   {agent.icon}
                 </div>
 
-                <span style={{ fontSize: '10px', color: '#9ca3af' }}>
+                <span style={{
+                  fontSize: '10px',
+                  color: '#9ca3af',
+                  fontFamily: 'Inter, sans-serif'
+                }}>
                   {agent.cat}
                 </span>
               </div>
 
-              {/* Name */}
+              {/* NAME */}
               <div
                 style={{
+                  fontFamily: 'Inter, sans-serif',
                   fontSize: '16px',
                   fontWeight: 600,
                   color: '#fff',
@@ -163,18 +180,20 @@ const AgentsSection = () => {
                 {agent.name}
               </div>
 
-              {/* Desc */}
+              {/* DESC */}
               <div
                 style={{
+                  fontFamily: 'Inter, sans-serif',
                   fontSize: '12px',
                   color: '#9ca3af',
-                  marginBottom: '12px'
+                  marginBottom: '12px',
+                  lineHeight: '1.5'
                 }}
               >
                 {agent.desc}
               </div>
 
-              {/* Tags */}
+              {/* TAGS */}
               <div
                 style={{
                   display: 'flex',
@@ -191,7 +210,8 @@ const AgentsSection = () => {
                       padding: '3px 7px',
                       borderRadius: '20px',
                       background: 'rgba(255,255,255,0.05)',
-                      color: '#9ca3af'
+                      color: '#9ca3af',
+                      fontFamily: 'JetBrains Mono'
                     }}
                   >
                     {t}
@@ -199,7 +219,7 @@ const AgentsSection = () => {
                 ))}
               </div>
 
-              {/* Footer */}
+              {/* FOOTER */}
               <div
                 style={{
                   display: 'flex',
@@ -209,12 +229,17 @@ const AgentsSection = () => {
                   paddingTop: '10px'
                 }}
               >
-                <span style={{ fontSize: '12px', color: '#fff' }}>
+                <span style={{
+                  fontFamily: 'Inter, sans-serif',
+                  fontSize: '12px',
+                  color: '#fff'
+                }}>
                   ⭐ {agent.rating}
                 </span>
 
                 <span
                   style={{
+                    fontFamily: 'Inter, sans-serif',
                     fontSize: '13px',
                     fontWeight: 600,
                     color: '#fff'

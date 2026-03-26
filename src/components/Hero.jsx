@@ -1,7 +1,15 @@
 import React, { useState, useEffect } from 'react';
 
 const Hero = () => {
-  const words = ['Voice Agents', 'Calling Agents', 'Restaurant Bots', 'Appointment AI', 'Support Agents', 'Sales Agents'];
+  const words = [
+    'Voice Agents',
+    'Calling Agents',
+    'Restaurant Bots',
+    'Appointment AI',
+    'Support Agents',
+    'Sales Agents'
+  ];
+
   const [wordIndex, setWordIndex] = useState(0);
   const [displayText, setDisplayText] = useState('');
   const [deleting, setDeleting] = useState(false);
@@ -49,31 +57,46 @@ const Hero = () => {
         overflow: 'hidden'
       }}
     >
-      {/* Background */}
-      <div style={{
-        position: 'absolute',
-        inset: 0,
-        backgroundImage:
-          'linear-gradient(rgba(255,255,255,.01) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.01) 1px, transparent 1px)',
-        backgroundSize: '60px 60px'
-      }} />
+      {/* 🎥 VIDEO BACKGROUND */}
+      <video
+        autoPlay
+        loop
+        muted
+        playsInline
+        style={{
+          position: 'absolute',
+          inset: 0,
+          width: '100%',
+          height: '100%',
+          objectFit: 'cover',
+          zIndex: 0
+        }}
+      >
+        <source src="/videos/sky.mp4" type="video/mp4" />
+      </video>
 
-      <div style={{
-        position: 'absolute',
-        inset: 0,
-        background:
-          'radial-gradient(ellipse 60% 60% at 50% 50%, transparent, var(--void) 100%)'
-      }} />
+      {/* 🔥 OVERLAY (for readability) */}
+      <div
+        style={{
+          position: 'absolute',
+          inset: 0,
+          background:
+            'linear-gradient(to bottom, rgba(0,0,0,0.5), rgba(0,0,0,0.85))',
+          zIndex: 1
+        }}
+      />
 
-      {/* Content */}
-      <div style={{
-        position: 'relative',
-        zIndex: 10,
-        maxWidth: '900px',
-        width: '100%',
-        padding: '0 20px',
-        textAlign: 'center'
-      }}>
+      {/* CONTENT */}
+      <div
+        style={{
+          position: 'relative',
+          zIndex: 2, // ✅ fixed layering
+          maxWidth: '900px',
+          width: '100%',
+          padding: '0 20px',
+          textAlign: 'center'
+        }}
+      >
 
         {/* Badge */}
         <div style={{
@@ -83,7 +106,8 @@ const Hero = () => {
           padding: '5px 14px',
           borderRadius: '100px',
           border: '1px solid rgba(255,255,255,.2)',
-          background: 'rgba(255,255,255,.05)',
+          background: 'rgba(255,255,255,.08)',
+          backdropFilter: 'blur(10px)',
           marginBottom: '20px'
         }}>
           <span style={{
@@ -102,9 +126,9 @@ const Hero = () => {
           </span>
         </div>
 
-        {/* 🔥 HEADING (Premium Font Applied) */}
+        {/* HEADING */}
         <h1 style={{
-          fontFamily: 'Playfair Display, serif', // ✅ MAIN CHANGE
+          fontFamily: 'Playfair Display, serif',
           fontSize: 'clamp(2.4rem, 5vw, 4.5rem)',
           lineHeight: '1.05',
           letterSpacing: '-0.03em',
@@ -113,9 +137,15 @@ const Hero = () => {
           marginBottom: '16px'
         }}>
           Deploy Your <br />
-          <span className="grad-white">
+
+          <span style={{
+            background: 'linear-gradient(135deg, #fff, #bbb)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent'
+          }}>
             {displayText || 'Voice Agents'}
           </span>
+
           <span style={{
             display: 'inline-block',
             width: '2px',
@@ -124,10 +154,12 @@ const Hero = () => {
             marginLeft: '4px',
             animation: 'blink 1s infinite'
           }} />
+
           <br />
+
           <span style={{
             color: '#9ca3af',
-            fontFamily: 'Inter, sans-serif', // mix serif + sans 🔥
+            fontFamily: 'Inter, sans-serif',
             fontWeight: 500
           }}>
             In Minutes
@@ -138,7 +170,7 @@ const Hero = () => {
         <p style={{
           fontFamily: 'Inter, sans-serif',
           fontSize: '15px',
-          color: '#9ca3af',
+          color: '#d1d5db',
           maxWidth: '480px',
           margin: '0 auto 28px',
           lineHeight: '1.6'
@@ -177,8 +209,8 @@ const Hero = () => {
               fontFamily: 'Inter, sans-serif',
               padding: '12px 22px',
               borderRadius: '12px',
-              border: '1px solid rgba(255,255,255,.15)',
-              color: '#e5e7eb',
+              border: '1px solid rgba(255,255,255,.2)',
+              color: '#fff',
               background: 'transparent',
               fontSize: '13px',
               cursor: 'pointer'
@@ -196,7 +228,7 @@ const Hero = () => {
           flexWrap: 'wrap',
           marginTop: '40px',
           paddingTop: '24px',
-          borderTop: '1px solid rgba(255,255,255,.05)'
+          borderTop: '1px solid rgba(255,255,255,.1)'
         }}>
           {[
             ['2,400+', 'Agents'],
@@ -215,7 +247,7 @@ const Hero = () => {
               </div>
               <div style={{
                 fontSize: '10px',
-                color: '#6b7280',
+                color: '#9ca3af',
                 fontFamily: 'Inter, sans-serif'
               }}>
                 {label}

@@ -1,2 +1,1 @@
-About AgentsDesk
-AgentsDesk is a revolutionary AI Agent Marketplace that empowers businesses to discover, deploy, and scale intelligent AI agents without writing a single line of code. Whether you need a voice agent for cold calling, a restaurant bot for reservations, or an appointment AI for scheduling — AgentsDesk has you covered.
+AgentsDesk is a cutting-edge AI Agent Marketplace that enables businesses to discover, deploy, and manage intelligent AI agents in minutes. It's a one-stop platform where companies can browse pre-built AI agents for various use cases including voice calling, customer support, restaurant reservations, appointment scheduling, sales automation, and more

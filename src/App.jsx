@@ -9,6 +9,7 @@ import UseCases from './components/UseCases'
 import Pricing from './components/Pricing'
 import Testimonials from './components/Testimonials'
 import AuthModal from './components/AuthModal'
+import Footer from './components/Footer'
 function App() {
   const [isAuthOpen, setIsAuthOpen] = useState(false)
   const [authMode, setAuthMode] = useState('login')
@@ -98,6 +99,7 @@ function App() {
       <UseCases />
       <Pricing />
       <Testimonials />
+      <Footer/>
       
       
       <AuthModal 

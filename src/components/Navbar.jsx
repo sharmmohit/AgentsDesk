@@ -45,21 +45,10 @@ const Navbar = () => {
           gap: '10px',
           textDecoration: 'none'
         }}>
-          <div style={{
-            width: '34px',
-            height: '34px',
-            background: 'linear-gradient(135deg, #fff, #aaa)',
-            borderRadius: '10px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontFamily: 'Inter, sans-serif',
-            fontSize: '11px',
-            fontWeight: 700,
-            color: '#020205'
-          }}>
-            AD
-          </div>
+         
+           
+            
+        
 
           {/* 🔥 Premium Logo Font */}
           <span style={{
@@ -69,7 +58,7 @@ const Navbar = () => {
             letterSpacing: '-0.02em',
             color: '#fff'
           }}>
-            AgentsDesk
+            agentsdesk
           </span>
         </a>
 

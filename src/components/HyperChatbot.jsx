@@ -20,7 +20,7 @@ const HyperChatbot = ({ isOpen, onClose }) => {
   const synthRef = useRef(window.speechSynthesis);
   
   // API endpoint - Hardcoded for now (you can change this)
-  const API_URL = 'http://localhost:8000';
+  const API_URL = 'https://hyper-ai-backend.onrender.com';
   
   // Initial welcome message
   useEffect(() => {

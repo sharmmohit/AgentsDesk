@@ -19,7 +19,6 @@ const HyperChatbot = ({ isOpen, onClose }) => {
   const recognitionRef = useRef(null);
   const synthRef = useRef(window.speechSynthesis);
   
-  // API endpoint - Hardcoded for now (you can change this)
   const API_URL = 'https://hyper-ai-backend.onrender.com';
   
   // Initial welcome message
@@ -27,28 +26,26 @@ const HyperChatbot = ({ isOpen, onClose }) => {
     if (isOpen && messages.length === 0) {
       const welcomeMessage = {
         role: 'assistant',
-        content: "👋 Hi there! I'm Hyper, your AI voice agent for AgentDesk! I can tell you all about our services, features, and how to deploy AI agents in minutes. What would you like to know?",
+        content: "Hi there! I'm Hyper, your AI voice agent for AgentDesk. I can tell you all about our services, features, and how to deploy AI agents in minutes. What would you like to know?",
         timestamp: new Date().toISOString()
       };
       setMessages([welcomeMessage]);
-      // Small delay before speaking to ensure component is ready
       setTimeout(() => {
         speakText(welcomeMessage.content);
       }, 500);
     }
   }, [isOpen]);
   
-  // Auto-scroll to bottom when messages update
+  // Auto-scroll
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
   
-  // Initialize speech recognition
+  // Speech recognition
   const initSpeechRecognition = () => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) {
-      console.error('Speech recognition not supported');
-      alert('Your browser does not support speech recognition. Please use Chrome, Edge, or Safari.');
+      alert('Speech recognition not supported. Please use Chrome, Edge, or Safari.');
       return null;
     }
     
@@ -57,52 +54,34 @@ const HyperChatbot = ({ isOpen, onClose }) => {
     recognition.continuous = false;
     recognition.interimResults = false;
     
-    recognition.onstart = () => {
-      setIsListening(true);
-    };
-    
+    recognition.onstart = () => setIsListening(true);
     recognition.onresult = (event) => {
       const transcript = event.results[0][0].transcript;
       setInputMessage(transcript);
       sendMessage(transcript);
       setIsListening(false);
     };
-    
-    recognition.onerror = (event) => {
-      console.error('Recognition error:', event.error);
-      setIsListening(false);
-      if (event.error === 'not-allowed') {
-        alert('Please allow microphone access to use voice input.');
-      }
-    };
-    
-    recognition.onend = () => {
-      setIsListening(false);
-    };
+    recognition.onerror = () => setIsListening(false);
+    recognition.onend = () => setIsListening(false);
     
     return recognition;
   };
   
-  // Text to speech function
+  // Text to speech
   const speakText = (text) => {
     if (!synthRef.current) return;
     
-    // Remove emojis and markdown for cleaner speech
     const cleanText = text.replace(/[^\w\s.,!?]/g, '');
     
-    // Cancel any ongoing speech
     try {
       synthRef.current.cancel();
-    } catch (e) {
-      console.error('Error canceling speech:', e);
-    }
+    } catch (e) {}
     
     const utterance = new SpeechSynthesisUtterance(cleanText);
     utterance.rate = 0.9;
     utterance.pitch = 1;
     utterance.volume = 1;
     
-    // Try to use a natural voice
     const voices = synthRef.current.getVoices();
     const preferredVoice = voices.find(voice => 
       voice.name.includes('Google') || 
@@ -114,60 +93,37 @@ const HyperChatbot = ({ isOpen, onClose }) => {
       utterance.voice = preferredVoice;
     }
     
-    utterance.onstart = () => {
-      setIsSpeaking(true);
-    };
-    
-    utterance.onend = () => {
-      setIsSpeaking(false);
-    };
-    
-    utterance.onerror = (event) => {
-      console.error('Speech error:', event);
-      setIsSpeaking(false);
-    };
+    utterance.onstart = () => setIsSpeaking(true);
+    utterance.onend = () => setIsSpeaking(false);
+    utterance.onerror = () => setIsSpeaking(false);
     
     try {
       synthRef.current.speak(utterance);
     } catch (e) {
-      console.error('Error speaking:', e);
       setIsSpeaking(false);
     }
   };
   
-  // Stop speaking
   const stopSpeaking = () => {
     if (synthRef.current) {
-      try {
-        synthRef.current.cancel();
-      } catch (e) {
-        console.error('Error stopping speech:', e);
-      }
+      synthRef.current.cancel();
     }
     setIsSpeaking(false);
   };
   
-  // Start voice input
   const startVoiceInput = () => {
     if (!recognitionRef.current) {
       recognitionRef.current = initSpeechRecognition();
     }
-    
     if (recognitionRef.current && !isListening && !isSpeaking) {
-      try {
-        recognitionRef.current.start();
-      } catch (e) {
-        console.error('Error starting recognition:', e);
-        alert('Could not start voice recognition. Please try again.');
-      }
+      recognitionRef.current.start();
     }
   };
   
-  // Send message to backend
+  // Send message
   const sendMessage = async (message) => {
     if (!message.trim()) return;
     
-    // Add user message to chat
     const userMessage = {
       role: 'user',
       content: message,
@@ -178,39 +134,26 @@ const HyperChatbot = ({ isOpen, onClose }) => {
     setIsLoading(true);
     
     try {
-      // Prepare conversation history for API
       const conversationHistory = messages.map(msg => ({
         role: msg.role,
         content: msg.content
       }));
       
-      // Call backend API
       const response = await axios.post(`${API_URL}/api/chat`, {
         message: message,
         conversation_history: conversationHistory
       });
       
-      // Add assistant response
       const assistantMessage = {
         role: 'assistant',
         content: response.data.response,
         timestamp: response.data.timestamp
       };
       setMessages(prev => [...prev, assistantMessage]);
-      
-      // Speak the response
       speakText(response.data.response);
       
     } catch (error) {
-      console.error('Error sending message:', error);
-      let errorMsg = "I'm having trouble connecting right now. ";
-      
-      if (error.code === 'ERR_NETWORK') {
-        errorMsg += "Please make sure the backend server is running at http://localhost:8000";
-      } else {
-        errorMsg += "Please check your connection and try again. You can also email support@agentdesk.com for immediate assistance.";
-      }
-      
+      let errorMsg = "I'm having trouble connecting right now. Please check your connection and try again.";
       const errorMessage = {
         role: 'assistant',
         content: errorMsg,
@@ -222,14 +165,12 @@ const HyperChatbot = ({ isOpen, onClose }) => {
     }
   };
   
-  // Handle send button click
   const handleSend = () => {
     if (inputMessage.trim() && !isLoading && !isSpeaking) {
       sendMessage(inputMessage);
     }
   };
   
-  // Handle enter key press
   const handleKeyPress = (e) => {
     if (e.key === 'Enter' && !e.shiftKey && !isLoading && !isSpeaking) {
       e.preventDefault();
@@ -237,7 +178,6 @@ const HyperChatbot = ({ isOpen, onClose }) => {
     }
   };
   
-  // Quick suggestion buttons
   const quickSuggestions = [
     "What is AgentDesk?",
     "How do I deploy an AI agent?",
@@ -246,339 +186,324 @@ const HyperChatbot = ({ isOpen, onClose }) => {
     "How does the integration work?",
     "Show me the features"
   ];
+  
   const styles = {
-  overlay: {
-    position: 'fixed',
-    inset: 0,
-    background: 'rgba(0,0,0,0.85)',
-    backdropFilter: 'blur(12px)',
-    zIndex: 9998
-  },
-
-  modal: {
-    position: 'fixed',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
-    width: '92%',
-    maxWidth: '640px',
-    height: '82vh',
-    background: '#0a0a0f',
-    borderRadius: '20px',
-    overflow: 'hidden',
-    zIndex: 9999,
-    border: '1px solid rgba(255,255,255,.06)'
-  },
-
-  chatbot: {
-    display: 'flex',
-    flexDirection: 'column',
-    height: '100%'
-  },
-
-  header: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: '16px 20px',
-    borderBottom: '1px solid rgba(255,255,255,.05)'
-  },
-
-  headerContent: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '10px'
-  },
-
-  agentIcon: {
-    width: '40px',
-    height: '40px',
-    borderRadius: '12px',
-    background: '#1a1a24',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center'
-  },
-
-  headerTitle: {
-    fontSize: '15px',
-    fontWeight: 600,
-    color: '#fff',
-    fontFamily: 'Inter, sans-serif'
-  },
-
-  agentStatus: {
-    fontSize: '10px',
-    color: '#9ca3af',
-    fontFamily: 'JetBrains Mono'
-  },
-
-  closeButton: {
-    width: '30px',
-    height: '30px',
-    borderRadius: '8px',
-    background: 'rgba(255,255,255,.05)',
-    border: 'none',
-    color: '#fff',
-    cursor: 'pointer'
-  },
-
-  messagesContainer: {
-    flex: 1,
-    overflowY: 'auto',
-    padding: '16px',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '12px'
-  },
-
-  message: {
-    display: 'flex',
-    gap: '8px'
-  },
-
-  messageAvatar: {
-    width: '26px',
-    height: '26px',
-    borderRadius: '50%',
-    background: '#1a1a24',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    fontSize: '11px'
-  },
-
-  messageContent: {
-    borderRadius: '12px',
-    padding: '8px 12px',
-    maxWidth: '75%'
-  },
-
-  userContent: {
-    background: 'rgba(255,255,255,.08)',
-    border: '1px solid rgba(255,255,255,.15)',
-    color: '#fff'
-  },
-
-  assistantContent: {
-    background: '#1a1a24',
-    color: '#e5e7eb'
-  },
-
-  messageText: {
-    fontSize: '12px',
-    lineHeight: '1.5',
-    fontFamily: 'Inter, sans-serif'
-  },
-
-  messageTime: {
-    fontSize: '9px',
-    color: '#6b7280',
-    marginTop: '4px',
-    fontFamily: 'JetBrains Mono'
-  },
-
-  quickSuggestions: {
-    padding: '10px 14px',
-    display: 'flex',
-    gap: '8px',
-    overflowX: 'auto',
-    borderTop: '1px solid rgba(255,255,255,.05)'
-  },
-
-  suggestionBtn: {
-    padding: '6px 12px',
-    borderRadius: '100px',
-    fontSize: '10px',
-    fontFamily: 'JetBrains Mono',
-    border: '1px solid rgba(255,255,255,.1)',
-    background: 'transparent',
-    color: '#9ca3af',
-    cursor: 'pointer'
-  },
-
-  inputArea: {
-    padding: '14px',
-    display: 'flex',
-    gap: '10px',
-    borderTop: '1px solid rgba(255,255,255,.05)'
-  },
-
-  voiceBtn: {
-    width: '38px',
-    height: '38px',
-    borderRadius: '10px',
-    background: '#1a1a24',
-    border: '1px solid rgba(255,255,255,.1)',
-    color: '#fff',
-    cursor: 'pointer'
-  },
-
-  voiceBtnListening: {
-    background: '#fff',
-    color: '#000'
-  },
-
-  textarea: {
-    flex: 1,
-    padding: '10px',
-    borderRadius: '10px',
-    background: '#111118',
-    border: '1px solid rgba(255,255,255,.1)',
-    color: '#fff',
-    fontFamily: 'Inter, sans-serif',
-    fontSize: '12px',
-    resize: 'none'
-  },
-
-  sendBtn: {
-    width: '38px',
-    height: '38px',
-    borderRadius: '10px',
-    background: '#fff',
-    color: '#000',
-    border: 'none',
-    cursor: 'pointer'
-  },
-
-  sendBtnDisabled: {
-    opacity: 0.4
-  },
-
-  stopSpeechBtn: {
-    position: 'absolute',
-    right: '70px',
-    bottom: '20px',
-    width: '28px',
-    height: '28px',
-    borderRadius: '6px',
-    background: '#fff',
-    border: 'none',
-    color: '#000',
-    cursor: 'pointer'
-  }
-};
-   // Add keyframes to document
+    overlay: {
+      position: 'fixed',
+      inset: 0,
+      background: 'rgba(0, 0, 0, 0.6)',
+      backdropFilter: 'blur(4px)',
+      zIndex: 9998
+    },
+    modal: {
+      position: 'fixed',
+      top: '50%',
+      left: '50%',
+      transform: 'translate(-50%, -50%)',
+      width: '90%',
+      maxWidth: '700px',
+      height: '80vh',
+      maxHeight: '750px',
+      background: '#ffffff',
+      borderRadius: '24px',
+      overflow: 'hidden',
+      zIndex: 9999,
+      boxShadow: '0 20px 40px rgba(0, 0, 0, 0.1)',
+      border: '1px solid #e5e7eb'
+    },
+    chatbot: {
+      display: 'flex',
+      flexDirection: 'column',
+      height: '100%',
+      background: '#ffffff',
+      overflow: 'hidden'
+    },
+    header: {
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      padding: '20px 24px',
+      borderBottom: '1px solid #e5e7eb',
+      background: '#ffffff',
+      flexShrink: 0
+    },
+    headerContent: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: '12px'
+    },
+    agentIcon: {
+      width: '40px',
+      height: '40px',
+      borderRadius: '50%',
+      background: '#000000',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      color: '#ffffff',
+      fontWeight: 600,
+      fontSize: '18px',
+      fontFamily: 'Playfair Display, serif'
+    },
+    headerInfo: {
+      display: 'flex',
+      flexDirection: 'column'
+    },
+    headerTitle: {
+      margin: 0,
+      fontSize: '18px',
+      fontWeight: 600,
+      color: '#000000',
+      fontFamily: 'Playfair Display, serif',
+      letterSpacing: '-0.02em'
+    },
+    agentStatus: {
+      margin: 0,
+      fontSize: '11px',
+      color: '#6b7280',
+      fontFamily: 'Inter, sans-serif'
+    },
+    closeButton: {
+      width: '32px',
+      height: '32px',
+      borderRadius: '50%',
+      background: '#f3f4f6',
+      border: 'none',
+      color: '#6b7280',
+      fontSize: '16px',
+      cursor: 'pointer',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center'
+    },
+    messagesContainer: {
+      flex: 1,
+      overflowY: 'auto',
+      overflowX: 'hidden',
+      padding: '24px',
+      background: '#ffffff'
+    },
+    message: {
+      display: 'flex',
+      gap: '12px',
+      marginBottom: '20px'
+    },
+    messageAvatar: {
+      width: '32px',
+      height: '32px',
+      borderRadius: '50%',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      fontSize: '12px',
+      fontWeight: 500,
+      flexShrink: 0,
+      fontFamily: 'Inter, sans-serif'
+    },
+    userAvatar: {
+      background: '#000000',
+      color: '#ffffff'
+    },
+    assistantAvatar: {
+      background: '#f3f4f6',
+      color: '#000000'
+    },
+    messageContent: {
+      flex: 1,
+      borderRadius: '16px',
+      padding: '12px 16px',
+      maxWidth: '70%',
+      wordWrap: 'break-word',
+      overflowWrap: 'break-word'
+    },
+    userContent: {
+      background: '#000000',
+      color: '#ffffff'
+    },
+    assistantContent: {
+      background: '#f3f4f6',
+      color: '#1f2937'
+    },
+    messageText: {
+      fontSize: '13px',
+      lineHeight: '1.5',
+      fontFamily: 'Inter, sans-serif',
+      wordBreak: 'break-word'
+    },
+    messageTime: {
+      fontSize: '9px',
+      color: '#9ca3af',
+      marginTop: '6px',
+      fontFamily: 'Inter, sans-serif'
+    },
+    quickSuggestions: {
+      padding: '12px 24px',
+      display: 'flex',
+      gap: '10px',
+      flexWrap: 'wrap',
+      borderTop: '1px solid #e5e7eb',
+      background: '#ffffff',
+      flexShrink: 0
+    },
+    suggestionBtn: {
+      padding: '6px 14px',
+      borderRadius: '20px',
+      fontSize: '11px',
+      fontFamily: 'Inter, sans-serif',
+      border: '1px solid #e5e7eb',
+      background: '#ffffff',
+      color: '#4b5563',
+      cursor: 'pointer',
+      transition: 'all 0.2s ease',
+      whiteSpace: 'nowrap'
+    },
+    inputArea: {
+      padding: '16px 24px',
+      display: 'flex',
+      gap: '12px',
+      alignItems: 'center',
+      borderTop: '1px solid #e5e7eb',
+      background: '#ffffff',
+      flexShrink: 0,
+      position: 'relative'
+    },
+    voiceBtn: {
+      width: '40px',
+      height: '40px',
+      borderRadius: '12px',
+      background: '#f3f4f6',
+      border: '1px solid #e5e7eb',
+      color: '#4b5563',
+      fontSize: '18px',
+      cursor: 'pointer',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      flexShrink: 0,
+      transition: 'all 0.2s ease'
+    },
+    voiceBtnListening: {
+      background: '#000000',
+      color: '#ffffff',
+      borderColor: '#000000'
+    },
+    textarea: {
+      flex: 1,
+      padding: '10px 16px',
+      borderRadius: '24px',
+      background: '#f9fafb',
+      border: '1px solid #e5e7eb',
+      color: '#1f2937',
+      fontFamily: 'Inter, sans-serif',
+      fontSize: '13px',
+      resize: 'none',
+      outline: 'none',
+      minHeight: '40px',
+      maxHeight: '100px'
+    },
+    sendBtn: {
+      width: '40px',
+      height: '40px',
+      borderRadius: '12px',
+      background: '#000000',
+      color: '#ffffff',
+      border: 'none',
+      fontSize: '16px',
+      cursor: 'pointer',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      flexShrink: 0,
+      transition: 'all 0.2s ease',
+      fontWeight: 500
+    },
+    sendBtnDisabled: {
+      opacity: 0.4,
+      cursor: 'not-allowed'
+    },
+    stopSpeechBtn: {
+      position: 'absolute',
+      right: '80px',
+      bottom: '24px',
+      width: '32px',
+      height: '32px',
+      borderRadius: '8px',
+      background: '#ef4444',
+      border: 'none',
+      color: '#ffffff',
+      cursor: 'pointer',
+      fontSize: '12px',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center'
+    },
+    typingIndicator: {
+      display: 'flex',
+      gap: '4px',
+      padding: '4px 0'
+    },
+    typingDot: {
+      width: '6px',
+      height: '6px',
+      borderRadius: '50%',
+      background: '#9ca3af',
+      animation: 'typing 1.4s infinite'
+    }
+  };
+  
+  // Add animations
   useEffect(() => {
     const styleSheet = document.createElement("style");
     styleSheet.textContent = `
-      @keyframes fadeIn {
-        from { opacity: 0; }
-        to { opacity: 1; }
-      }
-      
-      @keyframes slideUp {
-        from {
-          transform: translate(-50%, -40%);
-          opacity: 0;
-        }
-        to {
-          transform: translate(-50%, -50%);
-          opacity: 1;
-        }
-      }
-      
-      @keyframes fadeInUp {
-        from {
-          opacity: 0;
-          transform: translateY(10px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
-      
-      @keyframes pulse {
-        0%, 100% {
-          transform: scale(1);
-        }
-        50% {
-          transform: scale(1.05);
-        }
-      }
-      
       @keyframes typing {
         0%, 60%, 100% {
           transform: translateY(0);
         }
         30% {
-          transform: translateY(-10px);
+          transform: translateY(-6px);
         }
       }
       
       .messages-container::-webkit-scrollbar {
-        width: 6px;
+        width: 5px;
       }
       
       .messages-container::-webkit-scrollbar-track {
-        background: rgba(255, 255, 255, 0.05);
-      }
-      
-      .messages-container::-webkit-scrollbar-thumb {
-        background: rgba(255, 255, 255, 0.2);
+        background: #f1f1f1;
         border-radius: 3px;
       }
       
-      .messages-container::-webkit-scrollbar-thumb:hover {
-        background: rgba(255, 255, 255, 0.3);
-      }
-      
-      .quick-suggestions::-webkit-scrollbar {
-        height: 4px;
-      }
-      
-      .quick-suggestions::-webkit-scrollbar-track {
-        background: rgba(255, 255, 255, 0.05);
-      }
-      
-      .quick-suggestions::-webkit-scrollbar-thumb {
-        background: rgba(255, 255, 255, 0.2);
-        border-radius: 2px;
+      .messages-container::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 3px;
       }
       
       textarea:focus {
+        border-color: #000000;
         outline: none;
-        border-color: #00ff9d !important;
       }
       
       button:hover:not(:disabled) {
-        transform: translateY(-2px);
-      }
-      
-      .send-btn:hover:not(:disabled) {
-        box-shadow: 0 5px 15px rgba(0, 255, 157, 0.3);
+        transform: translateY(-1px);
       }
       
       .suggestion-btn:hover:not(:disabled) {
-        background: rgba(0, 255, 157, 0.2);
-        border-color: #00ff9d;
-        transform: translateY(-2px);
+        background: #f3f4f6;
+        border-color: #000000;
+      }
+      
+      .voice-btn:hover:not(:disabled) {
+        background: #e5e7eb;
       }
       
       .close-button:hover {
-        background: rgba(255, 71, 87, 0.3);
-        transform: scale(1.05);
+        background: #e5e7eb;
       }
       
       .voice-btn.listening {
-        animation: pulse 1s infinite;
-      }
-      
-      .agent-icon {
-        animation: pulse 2s infinite;
-      }
-      
-      .typing-indicator span {
-        animation: typing 1.4s infinite;
-      }
-      
-      .typing-indicator span:nth-child(2) {
-        animation-delay: 0.2s;
-      }
-      
-      .typing-indicator span:nth-child(3) {
-        animation-delay: 0.4s;
+        background: #000000;
+        color: #ffffff;
+        border-color: #000000;
       }
     `;
     document.head.appendChild(styleSheet);
@@ -602,26 +527,25 @@ const HyperChatbot = ({ isOpen, onClose }) => {
         {/* Header */}
         <div style={styles.header}>
           <div style={styles.headerContent}>
-            <div className="agent-icon" style={styles.agentIcon}>
-              <span>🤖</span>
+            <div style={styles.agentIcon}>
+              H
             </div>
             <div style={styles.headerInfo}>
-              <h2 style={styles.headerTitle}>Hyper AI Agent</h2>
+              <h2 style={styles.headerTitle}>Hyper</h2>
               <p style={styles.agentStatus}>
-                {isSpeaking ? '🔊 Speaking...' : isListening ? '🎤 Listening...' : '⚡ Ready to help'}
+                {isSpeaking ? 'Speaking...' : isListening ? 'Listening...' : isLoading ? 'Thinking...' : 'Ready'}
               </p>
             </div>
           </div>
           <button 
             style={styles.closeButton}
-            className="close-button"
             onClick={onClose}
           >
             ✕
           </button>
         </div>
         
-        {/* Messages Container */}
+        {/* Messages */}
         <div 
           className="messages-container"
           style={styles.messagesContainer} 
@@ -637,7 +561,7 @@ const HyperChatbot = ({ isOpen, onClose }) => {
             >
               {message.role !== 'user' && (
                 <div style={{ ...styles.messageAvatar, ...styles.assistantAvatar }}>
-                  🤖
+                  H
                 </div>
               )}
               <div style={{
@@ -647,12 +571,12 @@ const HyperChatbot = ({ isOpen, onClose }) => {
               }}>
                 <div style={styles.messageText}>{message.content}</div>
                 <div style={styles.messageTime}>
-                  {new Date(message.timestamp).toLocaleTimeString()}
+                  {new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                 </div>
               </div>
               {message.role === 'user' && (
                 <div style={{ ...styles.messageAvatar, ...styles.userAvatar }}>
-                  👤
+                  U
                 </div>
               )}
             </div>
@@ -660,13 +584,13 @@ const HyperChatbot = ({ isOpen, onClose }) => {
           {isLoading && (
             <div style={styles.message}>
               <div style={{ ...styles.messageAvatar, ...styles.assistantAvatar }}>
-                🤖
+                H
               </div>
               <div style={{ ...styles.messageContent, ...styles.assistantContent }}>
-                <div className="typing-indicator" style={styles.typingIndicator}>
+                <div style={styles.typingIndicator}>
                   <span style={styles.typingDot}></span>
-                  <span style={styles.typingDot}></span>
-                  <span style={styles.typingDot}></span>
+                  <span style={{ ...styles.typingDot, animationDelay: '0.2s' }}></span>
+                  <span style={{ ...styles.typingDot, animationDelay: '0.4s' }}></span>
                 </div>
               </div>
             </div>
@@ -675,11 +599,10 @@ const HyperChatbot = ({ isOpen, onClose }) => {
         </div>
         
         {/* Quick Suggestions */}
-        <div className="quick-suggestions" style={styles.quickSuggestions}>
+        <div style={styles.quickSuggestions}>
           {quickSuggestions.map((suggestion, index) => (
             <button
               key={index}
-              className="suggestion-btn"
               style={styles.suggestionBtn}
               onClick={() => sendMessage(suggestion)}
               disabled={isLoading || isSpeaking}
@@ -700,7 +623,10 @@ const HyperChatbot = ({ isOpen, onClose }) => {
             onClick={startVoiceInput}
             disabled={isLoading || isSpeaking}
           >
-            🎤
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 2C10.9 2 10 2.9 10 4V12C10 13.1 10.9 14 12 14C13.1 14 14 13.1 14 12V4C14 2.9 13.1 2 12 2Z" fill="currentColor"/>
+              <path d="M19 12C19 15.9 15.9 19 12 19C8.1 19 5 15.9 5 12H3C3 16.4 6.4 20 11 20.9V23H13V20.9C17.6 20 21 16.4 21 12H19Z" fill="currentColor"/>
+            </svg>
           </button>
           <textarea
             style={styles.textarea}
@@ -712,7 +638,6 @@ const HyperChatbot = ({ isOpen, onClose }) => {
             disabled={isLoading || isSpeaking}
           />
           <button
-            className="send-btn"
             style={{
               ...styles.sendBtn,
               ...((isLoading || !inputMessage.trim() || isSpeaking) ? styles.sendBtnDisabled : {})
@@ -720,14 +645,14 @@ const HyperChatbot = ({ isOpen, onClose }) => {
             onClick={handleSend}
             disabled={isLoading || !inputMessage.trim() || isSpeaking}
           >
-            {isLoading ? '⏳' : '📤'}
+            →
           </button>
           {isSpeaking && (
             <button 
               style={styles.stopSpeechBtn}
               onClick={stopSpeaking}
             >
-              ⏹️
+              ⏹
             </button>
           )}
         </div>

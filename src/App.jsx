@@ -10,6 +10,7 @@ import Pricing from './components/Pricing'
 import Testimonials from './components/Testimonials'
 import AuthModal from './components/AuthModal'
 import Footer from './components/Footer'
+import HyperShowcase from './components/HyperShowcase'
 function App() {
   const [isAuthOpen, setIsAuthOpen] = useState(false)
   const [authMode, setAuthMode] = useState('login')
@@ -94,12 +95,14 @@ function App() {
       />
       
       <Marquee />
+      <HyperShowcase/>
       <AgentsSection user={user} />
       <HowItWorks />
       <UseCases />
       <Pricing />
       <Testimonials />
       <Footer/>
+      
       
       
       <AuthModal 

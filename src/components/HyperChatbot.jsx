@@ -13,6 +13,7 @@ const HyperChatbot = ({ isOpen, onClose }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isListening, setIsListening] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   
   const messagesEndRef = useRef(null);
   const chatContainerRef = useRef(null);
@@ -20,6 +21,16 @@ const HyperChatbot = ({ isOpen, onClose }) => {
   const synthRef = useRef(window.speechSynthesis);
   
   const API_URL = 'https://hyper-ai-backend.onrender.com';
+  
+  // Detect mobile device
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
   
   // Initial welcome message
   useEffect(() => {
@@ -180,11 +191,11 @@ const HyperChatbot = ({ isOpen, onClose }) => {
   
   const quickSuggestions = [
     "What is AgentDesk?",
-    "How do I deploy an AI agent?",
-    "Tell me about Voice Agents",
-    "What are the pricing plans?",
-    "How does the integration work?",
-    "Show me the features"
+    "How do I deploy?",
+    "Voice Agents",
+    "Pricing",
+    "Integration",
+    "Features"
   ];
   
   const styles = {
@@ -200,12 +211,12 @@ const HyperChatbot = ({ isOpen, onClose }) => {
       top: '50%',
       left: '50%',
       transform: 'translate(-50%, -50%)',
-      width: '90%',
-      maxWidth: '700px',
-      height: '80vh',
-      maxHeight: '750px',
+      width: isMobile ? '95%' : '90%',
+      maxWidth: isMobile ? '95%' : '700px',
+      height: isMobile ? '90vh' : '80vh',
+      maxHeight: isMobile ? '90vh' : '750px',
       background: '#ffffff',
-      borderRadius: '24px',
+      borderRadius: isMobile ? '20px' : '24px',
       overflow: 'hidden',
       zIndex: 9999,
       boxShadow: '0 20px 40px rgba(0, 0, 0, 0.1)',
@@ -222,7 +233,7 @@ const HyperChatbot = ({ isOpen, onClose }) => {
       display: 'flex',
       justifyContent: 'space-between',
       alignItems: 'center',
-      padding: '20px 24px',
+      padding: isMobile ? '16px 20px' : '20px 24px',
       borderBottom: '1px solid #e5e7eb',
       background: '#ffffff',
       flexShrink: 0
@@ -233,8 +244,8 @@ const HyperChatbot = ({ isOpen, onClose }) => {
       gap: '12px'
     },
     agentIcon: {
-      width: '40px',
-      height: '40px',
+      width: isMobile ? '36px' : '40px',
+      height: isMobile ? '36px' : '40px',
       borderRadius: '50%',
       background: '#000000',
       display: 'flex',
@@ -242,7 +253,7 @@ const HyperChatbot = ({ isOpen, onClose }) => {
       justifyContent: 'center',
       color: '#ffffff',
       fontWeight: 600,
-      fontSize: '18px',
+      fontSize: isMobile ? '16px' : '18px',
       fontFamily: 'Playfair Display, serif'
     },
     headerInfo: {
@@ -251,7 +262,7 @@ const HyperChatbot = ({ isOpen, onClose }) => {
     },
     headerTitle: {
       margin: 0,
-      fontSize: '18px',
+      fontSize: isMobile ? '16px' : '18px',
       fontWeight: 600,
       color: '#000000',
       fontFamily: 'Playfair Display, serif',
@@ -259,18 +270,18 @@ const HyperChatbot = ({ isOpen, onClose }) => {
     },
     agentStatus: {
       margin: 0,
-      fontSize: '11px',
+      fontSize: isMobile ? '10px' : '11px',
       color: '#6b7280',
       fontFamily: 'Inter, sans-serif'
     },
     closeButton: {
-      width: '32px',
-      height: '32px',
+      width: isMobile ? '28px' : '32px',
+      height: isMobile ? '28px' : '32px',
       borderRadius: '50%',
       background: '#f3f4f6',
       border: 'none',
       color: '#6b7280',
-      fontSize: '16px',
+      fontSize: isMobile ? '14px' : '16px',
       cursor: 'pointer',
       display: 'flex',
       alignItems: 'center',
@@ -280,22 +291,22 @@ const HyperChatbot = ({ isOpen, onClose }) => {
       flex: 1,
       overflowY: 'auto',
       overflowX: 'hidden',
-      padding: '24px',
+      padding: isMobile ? '16px' : '24px',
       background: '#ffffff'
     },
     message: {
       display: 'flex',
-      gap: '12px',
-      marginBottom: '20px'
+      gap: isMobile ? '8px' : '12px',
+      marginBottom: isMobile ? '16px' : '20px'
     },
     messageAvatar: {
-      width: '32px',
-      height: '32px',
+      width: isMobile ? '28px' : '32px',
+      height: isMobile ? '28px' : '32px',
       borderRadius: '50%',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      fontSize: '12px',
+      fontSize: isMobile ? '10px' : '12px',
       fontWeight: 500,
       flexShrink: 0,
       fontFamily: 'Inter, sans-serif'
@@ -310,9 +321,9 @@ const HyperChatbot = ({ isOpen, onClose }) => {
     },
     messageContent: {
       flex: 1,
-      borderRadius: '16px',
-      padding: '12px 16px',
-      maxWidth: '70%',
+      borderRadius: isMobile ? '14px' : '16px',
+      padding: isMobile ? '10px 12px' : '12px 16px',
+      maxWidth: '75%',
       wordWrap: 'break-word',
       overflowWrap: 'break-word'
     },
@@ -325,30 +336,31 @@ const HyperChatbot = ({ isOpen, onClose }) => {
       color: '#1f2937'
     },
     messageText: {
-      fontSize: '13px',
+      fontSize: isMobile ? '12px' : '13px',
       lineHeight: '1.5',
       fontFamily: 'Inter, sans-serif',
       wordBreak: 'break-word'
     },
     messageTime: {
-      fontSize: '9px',
+      fontSize: isMobile ? '8px' : '9px',
       color: '#9ca3af',
-      marginTop: '6px',
+      marginTop: '4px',
       fontFamily: 'Inter, sans-serif'
     },
     quickSuggestions: {
-      padding: '12px 24px',
+      padding: isMobile ? '10px 16px' : '12px 24px',
       display: 'flex',
-      gap: '10px',
+      gap: isMobile ? '8px' : '10px',
       flexWrap: 'wrap',
       borderTop: '1px solid #e5e7eb',
       background: '#ffffff',
-      flexShrink: 0
+      flexShrink: 0,
+      justifyContent: isMobile ? 'center' : 'flex-start'
     },
     suggestionBtn: {
-      padding: '6px 14px',
+      padding: isMobile ? '6px 12px' : '6px 14px',
       borderRadius: '20px',
-      fontSize: '11px',
+      fontSize: isMobile ? '10px' : '11px',
       fontFamily: 'Inter, sans-serif',
       border: '1px solid #e5e7eb',
       background: '#ffffff',
@@ -358,9 +370,9 @@ const HyperChatbot = ({ isOpen, onClose }) => {
       whiteSpace: 'nowrap'
     },
     inputArea: {
-      padding: '16px 24px',
+      padding: isMobile ? '12px 16px' : '16px 24px',
       display: 'flex',
-      gap: '12px',
+      gap: isMobile ? '8px' : '12px',
       alignItems: 'center',
       borderTop: '1px solid #e5e7eb',
       background: '#ffffff',
@@ -368,13 +380,12 @@ const HyperChatbot = ({ isOpen, onClose }) => {
       position: 'relative'
     },
     voiceBtn: {
-      width: '40px',
-      height: '40px',
-      borderRadius: '12px',
+      width: isMobile ? '36px' : '40px',
+      height: isMobile ? '36px' : '40px',
+      borderRadius: isMobile ? '10px' : '12px',
       background: '#f3f4f6',
       border: '1px solid #e5e7eb',
       color: '#4b5563',
-      fontSize: '18px',
       cursor: 'pointer',
       display: 'flex',
       alignItems: 'center',
@@ -389,26 +400,26 @@ const HyperChatbot = ({ isOpen, onClose }) => {
     },
     textarea: {
       flex: 1,
-      padding: '10px 16px',
-      borderRadius: '24px',
+      padding: isMobile ? '8px 12px' : '10px 16px',
+      borderRadius: isMobile ? '20px' : '24px',
       background: '#f9fafb',
       border: '1px solid #e5e7eb',
       color: '#1f2937',
       fontFamily: 'Inter, sans-serif',
-      fontSize: '13px',
+      fontSize: isMobile ? '12px' : '13px',
       resize: 'none',
       outline: 'none',
-      minHeight: '40px',
-      maxHeight: '100px'
+      minHeight: isMobile ? '36px' : '40px',
+      maxHeight: isMobile ? '80px' : '100px'
     },
     sendBtn: {
-      width: '40px',
-      height: '40px',
-      borderRadius: '12px',
+      width: isMobile ? '36px' : '40px',
+      height: isMobile ? '36px' : '40px',
+      borderRadius: isMobile ? '10px' : '12px',
       background: '#000000',
       color: '#ffffff',
       border: 'none',
-      fontSize: '16px',
+      fontSize: isMobile ? '14px' : '16px',
       cursor: 'pointer',
       display: 'flex',
       alignItems: 'center',
@@ -423,16 +434,16 @@ const HyperChatbot = ({ isOpen, onClose }) => {
     },
     stopSpeechBtn: {
       position: 'absolute',
-      right: '80px',
-      bottom: '24px',
-      width: '32px',
-      height: '32px',
-      borderRadius: '8px',
+      right: isMobile ? '70px' : '80px',
+      bottom: isMobile ? '18px' : '24px',
+      width: isMobile ? '28px' : '32px',
+      height: isMobile ? '28px' : '32px',
+      borderRadius: isMobile ? '6px' : '8px',
       background: '#ef4444',
       border: 'none',
       color: '#ffffff',
       cursor: 'pointer',
-      fontSize: '12px',
+      fontSize: isMobile ? '10px' : '12px',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center'
@@ -443,8 +454,8 @@ const HyperChatbot = ({ isOpen, onClose }) => {
       padding: '4px 0'
     },
     typingDot: {
-      width: '6px',
-      height: '6px',
+      width: isMobile ? '5px' : '6px',
+      height: isMobile ? '5px' : '6px',
       borderRadius: '50%',
       background: '#9ca3af',
       animation: 'typing 1.4s infinite'
@@ -465,7 +476,7 @@ const HyperChatbot = ({ isOpen, onClose }) => {
       }
       
       .messages-container::-webkit-scrollbar {
-        width: 5px;
+        width: 4px;
       }
       
       .messages-container::-webkit-scrollbar-track {
@@ -504,6 +515,12 @@ const HyperChatbot = ({ isOpen, onClose }) => {
         background: #000000;
         color: #ffffff;
         border-color: #000000;
+      }
+      
+      @media (max-width: 768px) {
+        button:hover:not(:disabled) {
+          transform: none;
+        }
       }
     `;
     document.head.appendChild(styleSheet);
@@ -567,7 +584,7 @@ const HyperChatbot = ({ isOpen, onClose }) => {
               <div style={{
                 ...styles.messageContent,
                 ...(message.role === 'user' ? styles.userContent : styles.assistantContent),
-                maxWidth: message.role === 'user' ? '70%' : '80%'
+                maxWidth: message.role === 'user' ? '75%' : '80%'
               }}>
                 <div style={styles.messageText}>{message.content}</div>
                 <div style={styles.messageTime}>
@@ -623,7 +640,7 @@ const HyperChatbot = ({ isOpen, onClose }) => {
             onClick={startVoiceInput}
             disabled={isLoading || isSpeaking}
           >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <svg width={isMobile ? "16" : "18"} height={isMobile ? "16" : "18"} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M12 2C10.9 2 10 2.9 10 4V12C10 13.1 10.9 14 12 14C13.1 14 14 13.1 14 12V4C14 2.9 13.1 2 12 2Z" fill="currentColor"/>
               <path d="M19 12C19 15.9 15.9 19 12 19C8.1 19 5 15.9 5 12H3C3 16.4 6.4 20 11 20.9V23H13V20.9C17.6 20 21 16.4 21 12H19Z" fill="currentColor"/>
             </svg>
@@ -633,7 +650,7 @@ const HyperChatbot = ({ isOpen, onClose }) => {
             value={inputMessage}
             onChange={(e) => setInputMessage(e.target.value)}
             onKeyPress={handleKeyPress}
-            placeholder="Type your message or click the microphone to speak..."
+            placeholder={isMobile ? "Ask Hyper..." : "Type your message or click the microphone to speak..."}
             rows="1"
             disabled={isLoading || isSpeaking}
           />

@@ -11,6 +11,7 @@ import Testimonials from './components/Testimonials'
 import AuthModal from './components/AuthModal'
 import Footer from './components/Footer'
 import HyperShowcase from './components/HyperShowcase'
+import HyperIntegration from './components/HyperIntegration'
 function App() {
   const [isAuthOpen, setIsAuthOpen] = useState(false)
   const [authMode, setAuthMode] = useState('login')
@@ -102,6 +103,7 @@ function App() {
       <Pricing />
       <Testimonials />
       <Footer/>
+      <HyperIntegration/>
       
       
       

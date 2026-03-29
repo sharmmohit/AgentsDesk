@@ -1,60 +1,20 @@
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
+import axios from 'axios';
 
-const AuthModal = ({ isOpen, onClose, initialMode = 'login' }) => {
-  const [mode, setMode] = useState(initialMode);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [name, setName] = useState('');
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+
+const AuthModal = ({ isOpen, onClose, onLogin, initialMode = 'login' }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
   if (!isOpen) return null;
 
-  const handleEmailAuth = async (e) => {
-    e.preventDefault();
-    setError('');
-    
-    if (mode === 'login' && (!email || !password)) {
-      setError('Please enter both email and password');
-      return;
-    }
-    
-    if (mode === 'signup' && (!name || !email || !password)) {
-      setError('Please fill in all fields');
-      return;
-    }
-    
-    if (mode === 'signup' && password.length < 6) {
-      setError('Password must be at least 6 characters');
-      return;
-    }
-    
-    setLoading(true);
-    
-    // Simulate API call
-    setTimeout(() => {
-      setLoading(false);
-      console.log(`${mode === 'login' ? 'Login' : 'Signup'} with:`, { name, email, password });
-      alert(`Successfully ${mode === 'login' ? 'logged in' : 'signed up'} with ${email}`);
-      onClose();
-      // Reset form
-      setEmail('');
-      setPassword('');
-      setName('');
-      setError('');
-    }, 1000);
-  };
-
   const handleGoogleAuth = () => {
     setLoading(true);
-    // Simulate Google OAuth
-    setTimeout(() => {
-      setLoading(false);
-      console.log('Google authentication successful');
-      alert('Successfully authenticated with Google!');
-      onClose();
-    }, 1000);
+    setError('');
+    const backendUrl = API_URL.replace('/api', '');
+    window.location.href = `${backendUrl}/api/auth/google`;
   };
 
   return createPortal(
@@ -67,28 +27,27 @@ const AuthModal = ({ isOpen, onClose, initialMode = 'login' }) => {
         left: 0,
         right: 0,
         bottom: 0,
-        background: 'rgba(0, 0, 0, 0.85)',
-        backdropFilter: 'blur(12px)',
+        background: 'rgba(0, 0, 0, 0.5)',
+        backdropFilter: 'blur(8px)',
         zIndex: 1000,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        animation: 'fadeIn 0.3s ease'
+        padding: '20px',
+        overflowY: 'auto'
       }}
     >
       <div 
         className="auth-modal"
         onClick={(e) => e.stopPropagation()}
         style={{
-          background: 'linear-gradient(135deg, #111118 0%, #0a0a0f 100%)',
-          borderRadius: '24px',
-          padding: '40px',
-          maxWidth: '460px',
-          width: '90%',
-          border: '1px solid rgba(255, 255, 255, 0.1)',
-          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-          transform: 'translateY(0)',
-          animation: 'slideUp 0.3s ease',
+          display: 'flex',
+          maxWidth: '1000px',
+          width: '100%',
+          background: '#ffffff',
+          borderRadius: '32px',
+          overflow: 'hidden',
+          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
           position: 'relative'
         }}
       >
@@ -99,395 +58,275 @@ const AuthModal = ({ isOpen, onClose, initialMode = 'login' }) => {
             position: 'absolute',
             top: '20px',
             right: '20px',
-            background: 'rgba(255, 255, 255, 0.05)',
+            background: '#f3f4f6',
             border: 'none',
             borderRadius: '50%',
-            width: '32px',
-            height: '32px',
+            width: '36px',
+            height: '36px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             cursor: 'pointer',
-            color: '#9ca3af',
+            color: '#6b7280',
             fontSize: '18px',
+            zIndex: 10,
             transition: 'all 0.2s'
           }}
           onMouseEnter={(e) => {
-            e.target.style.background = 'rgba(255, 255, 255, 0.1)';
-            e.target.style.color = '#fff';
+            e.target.style.background = '#e5e7eb';
+            e.target.style.color = '#374151';
           }}
           onMouseLeave={(e) => {
-            e.target.style.background = 'rgba(255, 255, 255, 0.05)';
-            e.target.style.color = '#9ca3af';
+            e.target.style.background = '#f3f4f6';
+            e.target.style.color = '#6b7280';
           }}
         >
           ✕
         </button>
 
-        {/* Header */}
-        <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-          <div style={{
-            width: '60px',
-            height: '60px',
-            background: 'linear-gradient(135deg, #fff, #c0c0c0)',
-            borderRadius: '16px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            margin: '0 auto 20px',
-            fontSize: '28px',
-            fontWeight: 700,
-            fontFamily: 'JetBrains Mono',
-            color: '#020205'
-          }}>
-            AD
-          </div>
-          <h2 style={{
-            fontSize: '28px',
-            fontWeight: 700,
-            color: '#fff',
-            marginBottom: '8px'
-          }}>
-            {mode === 'login' ? 'Welcome back' : 'Create account'}
-          </h2>
-          <p style={{
-            fontSize: '14px',
-            color: '#9ca3af'
-          }}>
-            {mode === 'login' 
-              ? 'Sign in to access your AI agents' 
-              : 'Start your AI journey with AgentsDesk'}
-          </p>
-        </div>
-
-        {/* Error Message */}
-        {error && (
-          <div style={{
-            background: 'rgba(255, 68, 68, 0.1)',
-            border: '1px solid rgba(255, 68, 68, 0.3)',
-            borderRadius: '12px',
-            padding: '12px',
-            marginBottom: '20px',
-            color: '#ff6b6b',
-            fontSize: '13px',
-            textAlign: 'center'
-          }}>
-            {error}
-          </div>
-        )}
-
-        {/* Google Auth Button */}
-        <button
-          onClick={handleGoogleAuth}
-          disabled={loading}
-          style={{
-            width: '100%',
-            padding: '14px',
-            borderRadius: '12px',
-            background: 'rgba(255, 255, 255, 0.05)',
-            border: '1px solid rgba(255, 255, 255, 0.1)',
-            color: '#fff',
-            fontSize: '14px',
-            fontWeight: 500,
-            cursor: loading ? 'not-allowed' : 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '12px',
-            transition: 'all 0.3s',
-            marginBottom: '24px',
-            opacity: loading ? 0.6 : 1
-          }}
-          onMouseEnter={(e) => {
-            if (!loading) {
-              e.target.style.background = 'rgba(255, 255, 255, 0.1)';
-              e.target.style.borderColor = 'rgba(255, 255, 255, 0.3)';
-            }
-          }}
-          onMouseLeave={(e) => {
-            if (!loading) {
-              e.target.style.background = 'rgba(255, 255, 255, 0.05)';
-              e.target.style.borderColor = 'rgba(255, 255, 255, 0.1)';
-            }
-          }}
-        >
-          <svg width="20" height="20" viewBox="0 0 24 24">
-            <path
-              fill="#fff"
-              d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-            />
-            <path
-              fill="#fff"
-              d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-            />
-            <path
-              fill="#fff"
-              d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-            />
-            <path
-              fill="#fff"
-              d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-            />
-          </svg>
-          Continue with Google
-        </button>
-
-        {/* Divider */}
+        {/* Left Side - Image */}
         <div style={{
+          flex: 1,
+          background: '#f8fafc',
           display: 'flex',
           alignItems: 'center',
-          gap: '12px',
-          marginBottom: '24px'
+          justifyContent: 'center',
+          padding: '40px',
+          position: 'relative',
+          overflow: 'hidden'
         }}>
+          {/* Decorative background circles */}
           <div style={{
-            flex: 1,
-            height: '1px',
-            background: 'rgba(255, 255, 255, 0.1)'
-          }}></div>
-          <span style={{
-            fontSize: '12px',
-            color: '#6b7280',
-            fontFamily: 'JetBrains Mono'
-          }}>or</span>
+            position: 'absolute',
+            top: '-20%',
+            right: '-20%',
+            width: '250px',
+            height: '250px',
+            background: 'radial-gradient(circle, rgba(99, 102, 241, 0.08) 0%, transparent 70%)',
+            borderRadius: '50%'
+          }} />
           <div style={{
-            flex: 1,
-            height: '1px',
-            background: 'rgba(255, 255, 255, 0.1)'
-          }}></div>
+            position: 'absolute',
+            bottom: '-20%',
+            left: '-20%',
+            width: '200px',
+            height: '200px',
+            background: 'radial-gradient(circle, rgba(139, 92, 246, 0.06) 0%, transparent 70%)',
+            borderRadius: '50%'
+          }} />
+          
+          {/* Image */}
+          <img 
+            src="/images/image.jpg"
+            alt="Team collaborating on AI"
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+              position: 'absolute',
+              top: 0,
+              left: 0
+            }}
+          />
         </div>
 
-        {/* Email/Password Form */}
-        <form onSubmit={handleEmailAuth}>
-          {mode === 'signup' && (
-            <div style={{ marginBottom: '16px' }}>
-              <label style={{
-                display: 'block',
-                fontSize: '12px',
-                fontWeight: 500,
-                color: '#9ca3af',
-                marginBottom: '6px',
-                fontFamily: 'JetBrains Mono'
-              }}>
-                Full Name
-              </label>
-              <input
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="John Doe"
-                disabled={loading}
-                style={{
-                  width: '100%',
-                  padding: '12px 14px',
-                  background: 'rgba(255, 255, 255, 0.05)',
-                  border: '1px solid rgba(255, 255, 255, 0.1)',
-                  borderRadius: '10px',
-                  color: '#fff',
-                  fontSize: '14px',
-                  fontFamily: 'Syne',
-                  outline: 'none',
-                  transition: 'all 0.2s'
-                }}
-                onFocus={(e) => {
-                  e.target.style.borderColor = '#fff';
-                  e.target.style.background = 'rgba(255, 255, 255, 0.08)';
-                }}
-                onBlur={(e) => {
-                  e.target.style.borderColor = 'rgba(255, 255, 255, 0.1)';
-                  e.target.style.background = 'rgba(255, 255, 255, 0.05)';
-                }}
-              />
+        {/* Right Side - Form */}
+        <div style={{
+          flex: 1,
+          padding: '48px',
+          background: '#ffffff',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center'
+        }}>
+          <div style={{ marginBottom: '32px', textAlign: 'center' }}>
+            <h3 style={{
+              fontSize: '28px',
+              fontWeight: 600,
+              color: '#111827',
+              marginBottom: '12px',
+              fontFamily: 'Syne, sans-serif',
+              letterSpacing: '-0.01em'
+            }}>
+              Welcome back
+            </h3>
+            <p style={{
+              fontSize: '15px',
+              color: '#6b7280',
+              lineHeight: '1.5'
+            }}>
+              Sign in to continue to AgentsDesk
+            </p>
+          </div>
+
+          {error && (
+            <div style={{
+              background: '#fef2f2',
+              border: '1px solid #fecaca',
+              borderRadius: '12px',
+              padding: '12px',
+              marginBottom: '24px',
+              color: '#dc2626',
+              fontSize: '13px',
+              textAlign: 'center'
+            }}>
+              {error}
             </div>
           )}
 
-          <div style={{ marginBottom: '16px' }}>
-            <label style={{
-              display: 'block',
-              fontSize: '12px',
-              fontWeight: 500,
-              color: '#9ca3af',
-              marginBottom: '6px',
-              fontFamily: 'JetBrains Mono'
-            }}>
-              Email Address
-            </label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="hello@agentsdesk.com"
-              disabled={loading}
-              style={{
-                width: '100%',
-                padding: '12px 14px',
-                background: 'rgba(255, 255, 255, 0.05)',
-                border: '1px solid rgba(255, 255, 255, 0.1)',
-                borderRadius: '10px',
-                color: '#fff',
-                fontSize: '14px',
-                fontFamily: 'Syne',
-                outline: 'none',
-                transition: 'all 0.2s'
-              }}
-              onFocus={(e) => {
-                e.target.style.borderColor = '#fff';
-                e.target.style.background = 'rgba(255, 255, 255, 0.08)';
-              }}
-              onBlur={(e) => {
-                e.target.style.borderColor = 'rgba(255, 255, 255, 0.1)';
-                e.target.style.background = 'rgba(255, 255, 255, 0.05)';
-              }}
-            />
-          </div>
-
-          <div style={{ marginBottom: '24px' }}>
-            <label style={{
-              display: 'block',
-              fontSize: '12px',
-              fontWeight: 500,
-              color: '#9ca3af',
-              marginBottom: '6px',
-              fontFamily: 'JetBrains Mono'
-            }}>
-              Password
-            </label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              disabled={loading}
-              style={{
-                width: '100%',
-                padding: '12px 14px',
-                background: 'rgba(255, 255, 255, 0.05)',
-                border: '1px solid rgba(255, 255, 255, 0.1)',
-                borderRadius: '10px',
-                color: '#fff',
-                fontSize: '14px',
-                fontFamily: 'Syne',
-                outline: 'none',
-                transition: 'all 0.2s'
-              }}
-              onFocus={(e) => {
-                e.target.style.borderColor = '#fff';
-                e.target.style.background = 'rgba(255, 255, 255, 0.08)';
-              }}
-              onBlur={(e) => {
-                e.target.style.borderColor = 'rgba(255, 255, 255, 0.1)';
-                e.target.style.background = 'rgba(255, 255, 255, 0.05)';
-              }}
-            />
-            {mode === 'signup' && (
-              <p style={{
-                fontSize: '10px',
-                color: '#6b7280',
-                marginTop: '6px',
-                fontFamily: 'JetBrains Mono'
-              }}>
-                Password must be at least 6 characters
-              </p>
-            )}
-          </div>
-
+          {/* Google Sign In Button - Colorful */}
           <button
-            type="submit"
+            onClick={handleGoogleAuth}
             disabled={loading}
             style={{
               width: '100%',
-              padding: '14px',
+              padding: '14px 20px',
               borderRadius: '12px',
               background: '#fff',
-              color: '#020205',
-              fontSize: '14px',
-              fontWeight: 600,
-              fontFamily: 'Syne',
-              border: 'none',
+              border: '1px solid #e5e7eb',
+              color: '#374151',
+              fontSize: '15px',
+              fontWeight: 500,
               cursor: loading ? 'not-allowed' : 'pointer',
-              transition: 'all 0.3s',
-              marginBottom: '16px',
-              opacity: loading ? 0.7 : 1
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '12px',
+              transition: 'all 0.2s',
+              fontFamily: 'Inter, sans-serif',
+              opacity: loading ? 0.6 : 1,
+              boxShadow: '0 1px 2px rgba(0, 0, 0, 0.05)'
             }}
             onMouseEnter={(e) => {
               if (!loading) {
-                e.target.style.boxShadow = '0 0 20px rgba(255, 255, 255, 0.3)';
-                e.target.style.transform = 'translateY(-1px)';
+                e.target.style.background = '#f9fafb';
+                e.target.style.borderColor = '#d1d5db';
+                e.target.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)';
               }
             }}
             onMouseLeave={(e) => {
               if (!loading) {
-                e.target.style.boxShadow = 'none';
-                e.target.style.transform = 'translateY(0)';
+                e.target.style.background = '#fff';
+                e.target.style.borderColor = '#e5e7eb';
+                e.target.style.boxShadow = '0 1px 2px rgba(0, 0, 0, 0.05)';
               }
             }}
           >
-            {loading ? 'Processing...' : (mode === 'login' ? 'Sign In' : 'Create Account')}
+            {/* Official Google Color Icon */}
+            <svg width="22" height="22" viewBox="0 0 24 24">
+              <path
+                fill="#4285F4"
+                d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+              />
+              <path
+                fill="#34A853"
+                d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+              />
+              <path
+                fill="#FBBC05"
+                d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+              />
+              <path
+                fill="#EA4335"
+                d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+              />
+            </svg>
+            {loading ? 'Connecting...' : 'Continue with Google'}
           </button>
-        </form>
 
-        {/* Switch Mode Link */}
-        <div style={{ textAlign: 'center' }}>
-          <button
-            onClick={() => {
-              setMode(mode === 'login' ? 'signup' : 'login');
-              setError('');
-              // Reset form when switching
-              setEmail('');
-              setPassword('');
-              setName('');
-            }}
-            style={{
-              background: 'none',
-              border: 'none',
+          {/* Divider */}
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '16px',
+            margin: '32px 0 24px'
+          }}>
+            <div style={{
+              flex: 1,
+              height: '1px',
+              background: '#e5e7eb'
+            }} />
+            <span style={{
+              fontSize: '12px',
               color: '#9ca3af',
-              fontSize: '13px',
-              cursor: 'pointer',
-              transition: 'color 0.2s'
-            }}
-            onMouseEnter={(e) => e.target.style.color = '#fff'}
-            onMouseLeave={(e) => e.target.style.color = '#9ca3af'}
-          >
-            {mode === 'login' 
-              ? "Don't have an account? Sign up" 
-              : "Already have an account? Sign in"}
-          </button>
-        </div>
+              fontFamily: 'Inter, sans-serif'
+            }}>
+              Secure Access
+            </span>
+            <div style={{
+              flex: 1,
+              height: '1px',
+              background: '#e5e7eb'
+            }} />
+          </div>
 
-        {/* Terms & Privacy */}
-        {mode === 'signup' && (
+          {/* Features List */}
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '12px',
+            marginBottom: '24px'
+          }}>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
+              fontSize: '13px',
+              color: '#6b7280'
+            }}>
+              <span style={{ color: '#10b981', fontSize: '16px' }}>✓</span>
+              <span>Access to 2,400+ AI agents</span>
+            </div>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
+              fontSize: '13px',
+              color: '#6b7280'
+            }}>
+              <span style={{ color: '#10b981', fontSize: '16px' }}>✓</span>
+              <span>Enterprise-grade security</span>
+            </div>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
+              fontSize: '13px',
+              color: '#6b7280'
+            }}>
+              <span style={{ color: '#10b981', fontSize: '16px' }}>✓</span>
+              <span>24/7 AI support included</span>
+            </div>
+          </div>
+
+          {/* Terms */}
           <p style={{
             fontSize: '11px',
-            color: '#6b7280',
+            color: '#9ca3af',
             textAlign: 'center',
-            marginTop: '20px',
-            fontFamily: 'JetBrains Mono'
+            fontFamily: 'Inter, sans-serif',
+            lineHeight: '1.5'
           }}>
-            By signing up, you agree to our{' '}
-            <a href="#" style={{ color: '#fff', textDecoration: 'none' }}>Terms of Service</a>
+            By continuing, you agree to our{' '}
+            <a href="#" style={{ color: '#4f46e5', textDecoration: 'none', fontWeight: 500 }}>
+              Terms of Service
+            </a>
             {' '}and{' '}
-            <a href="#" style={{ color: '#fff', textDecoration: 'none' }}>Privacy Policy</a>
+            <a href="#" style={{ color: '#4f46e5', textDecoration: 'none', fontWeight: 500 }}>
+              Privacy Policy
+            </a>
           </p>
-        )}
+        </div>
       </div>
 
       <style>{`
-        @keyframes fadeIn {
-          from {
-            opacity: 0;
+        @media (max-width: 768px) {
+          .auth-modal {
+            flex-direction: column;
+            max-width: 95%;
           }
-          to {
-            opacity: 1;
-          }
-        }
-        
-        @keyframes slideUp {
-          from {
-            opacity: 0;
-            transform: translateY(20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
+          .auth-modal > div:first-child {
+            display: none;
           }
         }
       `}</style>

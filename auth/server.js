@@ -14,17 +14,6 @@ const __dirname = path.dirname(__filename);
 // Load environment variables
 dotenv.config();
 
-// Debug: Check environment variables
-console.log('📋 Environment Variables Check:');
-console.log('PORT:', process.env.PORT || '5000');
-console.log('NODE_ENV:', process.env.NODE_ENV || 'development');
-console.log('GOOGLE_CLIENT_ID:', process.env.GOOGLE_CLIENT_ID ? '✅ Present' : '❌ Missing');
-console.log('GOOGLE_CLIENT_SECRET:', process.env.GOOGLE_CLIENT_SECRET ? '✅ Present' : '❌ Missing');
-console.log('MONGODB_URI:', process.env.MONGODB_URI ? '✅ Present' : '❌ Missing');
-console.log('JWT_SECRET:', process.env.JWT_SECRET ? '✅ Present' : '❌ Missing');
-console.log('FRONTEND_URL:', process.env.FRONTEND_URL || 'http://localhost:5173');
-console.log('BACKEND_URL:', process.env.BACKEND_URL || 'http://localhost:5000');
-console.log('----------------------------------------\n');
 
 const app = express();
 
@@ -50,7 +39,7 @@ app.use(cors({
     if (allowedOrigins.indexOf(origin) !== -1 || process.env.NODE_ENV !== 'production') {
       callback(null, true);
     } else {
-      console.warn(`⚠️ CORS blocked for origin: ${origin}`);
+      console.warn(` CORS blocked for origin: ${origin}`);
       callback(null, false);
     }
   },
@@ -147,10 +136,10 @@ const connectWithRetry = async () => {
       serverSelectionTimeoutMS: 5000,
       socketTimeoutMS: 45000,
     });
-    console.log('✅ MongoDB Connected successfully');
+    console.log(' MongoDB Connected successfully');
   } catch (err) {
-    console.error('❌ MongoDB Connection Error:', err.message);
-    console.log('🔄 Retrying connection in 5 seconds...');
+    console.error('MongoDB Connection Error:', err.message);
+    console.log('Retrying connection in 5 seconds...');
     setTimeout(connectWithRetry, 5000);
   }
 };
@@ -159,25 +148,25 @@ connectWithRetry();
 
 // Handle MongoDB connection events
 mongoose.connection.on('connected', () => {
-  console.log('✅ MongoDB connected');
+  console.log(' MongoDB connected');
 });
 
 mongoose.connection.on('error', (err) => {
-  console.error('❌ MongoDB connection error:', err);
+  console.error('MongoDB connection error:', err);
 });
 
 mongoose.connection.on('disconnected', () => {
-  console.log('⚠️ MongoDB disconnected');
+  console.log('MongoDB disconnected');
 });
 
 // Graceful shutdown
 process.on('SIGINT', async () => {
   try {
     await mongoose.connection.close();
-    console.log('✅ MongoDB connection closed through app termination');
+    console.log('MongoDB connection closed through app termination');
     process.exit(0);
   } catch (err) {
-    console.error('❌ Error during graceful shutdown:', err);
+    console.error(' Error during graceful shutdown:', err);
     process.exit(1);
   }
 });

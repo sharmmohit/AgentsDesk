@@ -114,33 +114,7 @@ const Hero = () => {
             textAlign: 'center'
           }}
         >
-          {/* Badge */}
-          <div style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '8px',
-            padding: '5px 14px',
-            borderRadius: '100px',
-            border: '1px solid rgba(255,255,255,.2)',
-            background: 'rgba(255,255,255,.08)',
-            backdropFilter: 'blur(10px)',
-            marginBottom: '20px'
-          }}>
-            <span style={{
-              width: '6px',
-              height: '6px',
-              borderRadius: '50%',
-              background: '#fff'
-            }} />
-            <span style={{
-              fontSize: '10px',
-              fontFamily: 'Inter, sans-serif',
-              color: '#fff',
-              letterSpacing: '.12em'
-            }}>
-              AI AGENT MARKETPLACE
-            </span>
-          </div>
+          
 
           {/* HEADING */}
           <h1 style={{

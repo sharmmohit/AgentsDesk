@@ -2,7 +2,13 @@ import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+// Fix: Proper API URL priority
+const API_URL = import.meta.env.VITE_AGENTDESK_API_URL || 
+                import.meta.env.VITE_API_URL || 
+                'https://agentsdesk-1.onrender.com/api';
+
+// Log which URL is being used (for debugging)
+console.log('🔧 AuthModal using API_URL:', API_URL);
 
 const AuthModal = ({ isOpen, onClose, onLogin, initialMode = 'login' }) => {
   const [loading, setLoading] = useState(false);
@@ -13,8 +19,15 @@ const AuthModal = ({ isOpen, onClose, onLogin, initialMode = 'login' }) => {
   const handleGoogleAuth = () => {
     setLoading(true);
     setError('');
+    
+    // Build the Google auth URL correctly
     const backendUrl = API_URL.replace('/api', '');
-    window.location.href = `${backendUrl}/api/auth/google`;
+    const googleAuthUrl = `${backendUrl}/api/auth/google`;
+    
+    console.log('🔐 Redirecting to Google auth:', googleAuthUrl);
+    
+    // Redirect to Google OAuth
+    window.location.href = googleAuthUrl;
   };
 
   return createPortal(
@@ -87,38 +100,13 @@ const AuthModal = ({ isOpen, onClose, onLogin, initialMode = 'login' }) => {
         {/* Left Side - Image */}
         <div style={{
           flex: 1,
-          background: '#f8fafc',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '40px',
           position: 'relative',
-          overflow: 'hidden'
+          overflow: 'hidden',
+          minHeight: '500px'
         }}>
-          {/* Decorative background circles */}
-          <div style={{
-            position: 'absolute',
-            top: '-20%',
-            right: '-20%',
-            width: '250px',
-            height: '250px',
-            background: 'radial-gradient(circle, rgba(99, 102, 241, 0.08) 0%, transparent 70%)',
-            borderRadius: '50%'
-          }} />
-          <div style={{
-            position: 'absolute',
-            bottom: '-20%',
-            left: '-20%',
-            width: '200px',
-            height: '200px',
-            background: 'radial-gradient(circle, rgba(139, 92, 246, 0.06) 0%, transparent 70%)',
-            borderRadius: '50%'
-          }} />
-          
-          {/* Image */}
           <img 
             src="/images/image.jpg"
-            alt="Team collaborating on AI"
+            alt="AI Agents"
             style={{
               width: '100%',
               height: '100%',
@@ -127,7 +115,21 @@ const AuthModal = ({ isOpen, onClose, onLogin, initialMode = 'login' }) => {
               top: 0,
               left: 0
             }}
+            onError={(e) => {
+              console.error('Image failed to load:', e);
+              e.target.style.display = 'none';
+            }}
           />
+          {/* Fallback gradient if image doesn't load */}
+          <div style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            zIndex: -1
+          }} />
         </div>
 
         {/* Right Side - Form */}
@@ -174,7 +176,7 @@ const AuthModal = ({ isOpen, onClose, onLogin, initialMode = 'login' }) => {
             </div>
           )}
 
-          {/* Google Sign In Button - Colorful */}
+          {/* Google Sign In Button */}
           <button
             onClick={handleGoogleAuth}
             disabled={loading}

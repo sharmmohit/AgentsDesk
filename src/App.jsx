@@ -12,6 +12,7 @@ import AuthModal from './components/AuthModal'
 import Footer from './components/Footer'
 import HyperShowcase from './components/HyperShowcase'
 import HyperIntegration from './components/HyperIntegration'
+import AtomicSalesAgent from './components/AtomicSalesAgent'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
 
@@ -198,6 +199,7 @@ function App() {
       <Marquee />
 
       <HyperShowcase />
+      <AtomicSalesAgent/>
 
       <AgentsSection user={user} />
 
@@ -209,7 +211,6 @@ function App() {
 
       <Testimonials />
 
-      <HyperIntegration />
 
       <Footer />
 

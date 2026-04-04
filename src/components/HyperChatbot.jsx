@@ -20,7 +20,7 @@ const HyperChatbot = ({ isOpen, onClose }) => {
   const recognitionRef = useRef(null);
   const synthRef = useRef(window.speechSynthesis);
   
-  const API_URL = 'https://hyper-ai-backend.onrender.com';
+  const API_URL = import.meta.env.VITE_HYPER_AI_API_URL || 'https://hyper-ai-backend.onrender.com';
   
   // Detect mobile device
   useEffect(() => {
